@@ -3,14 +3,14 @@ import csv
 import psycopg2
 from psycopg2 import sql
 from dotenv import load_dotenv
+
 load_dotenv()
 
 if 'port' not in os.environ:
     os.environ['port'] = '5432'
 
-# ============================================================
-# CONFIGURATION
-# ============================================================
+
+# Configuration
 
 DB_CONFIG = {
     "host": os.environ['host'],
@@ -23,9 +23,7 @@ DB_CONFIG = {
 CSV_DIR = "data"
 
 
-# ============================================================
-# DATABASE CONNECTION
-# ============================================================
+# Db Connection
 
 conn = psycopg2.connect(**DB_CONFIG)
 conn.autocommit = False
@@ -35,17 +33,14 @@ cursor = conn.cursor()
 print("Connected to PostgreSQL")
 
 
-# ============================================================
-# CREATE TABLES
-# ============================================================
+# Create tables
 
 create_tables_sql = """
 
 CREATE SCHEMA IF NOT EXISTS public;
 
--- =========================================================
--- USERS
--- =========================================================
+
+-- Users table
 
 CREATE TABLE IF NOT EXISTS public.users (
     user_id INTEGER PRIMARY KEY,
@@ -61,9 +56,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 );
 
 
--- =========================================================
--- VEHICLES
--- =========================================================
+-- Vehicles table
 
 CREATE TABLE IF NOT EXISTS public.vehicles (
     vehicle_id INTEGER PRIMARY KEY,
@@ -81,9 +74,7 @@ CREATE TABLE IF NOT EXISTS public.vehicles (
 );
 
 
--- =========================================================
--- RIDES
--- =========================================================
+-- Rides table
 
 CREATE TABLE IF NOT EXISTS public.rides (
     ride_id INTEGER PRIMARY KEY,
@@ -118,9 +109,7 @@ CREATE TABLE IF NOT EXISTS public.rides (
 );
 
 
--- =========================================================
--- PAYMENTS
--- =========================================================
+-- Payments table
 
 CREATE TABLE IF NOT EXISTS public.payments (
     payment_id INTEGER PRIMARY KEY,
@@ -146,9 +135,7 @@ CREATE TABLE IF NOT EXISTS public.payments (
 );
 
 
--- =========================================================
--- RATINGS
--- =========================================================
+-- Ratings table
 
 CREATE TABLE IF NOT EXISTS public.ratings (
     rating_id INTEGER PRIMARY KEY,
@@ -178,9 +165,7 @@ CREATE TABLE IF NOT EXISTS public.ratings (
 );
 
 
--- =========================================================
--- INDEXES
--- =========================================================
+-- Create indexes
 
 CREATE INDEX IF NOT EXISTS idx_vehicles_driver_id
 ON public.vehicles(driver_id);
@@ -216,13 +201,7 @@ cursor.execute(create_tables_sql)
 print("Tables created successfully")
 
 
-# ============================================================
-# OPTIONAL: CLEAR EXISTING DATA
-# ============================================================
-
-# Uncomment this section if you want every execution
-# to completely reload the CSV data.
-
+# Clear existing data
 
 cursor.execute("""
     TRUNCATE TABLE
@@ -235,10 +214,7 @@ cursor.execute("""
 """)
 
 
-
-# ============================================================
-# LOAD CSV USING POSTGRES COPY
-# ============================================================
+# Load CSV data
 
 def load_csv(table_name, csv_file, columns):
 
@@ -280,9 +256,7 @@ def load_csv(table_name, csv_file, columns):
     print(f"Loaded {csv_file}")
 
 
-# ============================================================
-# LOAD USERS
-# ============================================================
+# Load users
 
 load_csv(
     "users",
@@ -302,9 +276,7 @@ load_csv(
 )
 
 
-# ============================================================
-# LOAD VEHICLES
-# ============================================================
+# Load vehicles
 
 load_csv(
     "vehicles",
@@ -322,9 +294,7 @@ load_csv(
 )
 
 
-# ============================================================
-# LOAD RIDES
-# ============================================================
+# Load rides
 
 load_csv(
     "rides",
@@ -349,9 +319,7 @@ load_csv(
 )
 
 
-# ============================================================
-# LOAD PAYMENTS
-# ============================================================
+# Load payments
 
 load_csv(
     "payments",
@@ -369,9 +337,7 @@ load_csv(
 )
 
 
-# ============================================================
-# LOAD RATINGS
-# ============================================================
+# Load ratings
 
 load_csv(
     "ratings",
@@ -388,9 +354,7 @@ load_csv(
 )
 
 
-# ============================================================
-# VERIFY RECORD COUNTS
-# ============================================================
+# Verify record counts
 
 tables = [
     "users",
@@ -419,9 +383,7 @@ for table in tables:
     print(f"{table:<15} {count:>10,}")
 
 
-# ============================================================
-# COMMIT
-# ============================================================
+# Commit transaction
 
 conn.commit()
 
@@ -429,9 +391,7 @@ print("\nData loaded successfully!")
 print("Transaction committed.")
 
 
-# ============================================================
-# CLOSE CONNECTION
-# ============================================================
+# Close database connection
 
 cursor.close()
 conn.close()
